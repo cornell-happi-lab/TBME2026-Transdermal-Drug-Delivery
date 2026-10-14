@@ -1,9 +1,7 @@
 function BSA_Drug_Delivery_Results_Cam_Ready
 % Release analysis (Franz cell) for BSA from per-sample BSA concentrations.
-%
 % This script loads per-sample BSA concentrations (180 samples) from
 % NNLS_Cam_Ready_results.csv, which must sit in the same folder as this script.
-%
 % Produces the following metrics to console:
 % Q(afer 180 minutes), steady-state Jss / lag time (tau) / Papp per geometry x condition (PASS vs CIP).
 % CIP denotes iontophoretic delivery; PASS denotes passive diffusion.
@@ -21,8 +19,7 @@ C0_ugmL = 20000;   % 20 mg/mL = 20000 µg/mL
 %%  PER-SAMPLE NNLS RESULTS
 % Columns: file, geom, t_min, isPass, Vr_mL, C_BSA_ugmL
 % Vr_mL is the receptor volume: 10.255033 mL for the standard Franz cell,
-% 9.850898 mL for cells fitted with the custom (circle) adapter. The adapter
-% was used for all Circle (C) samples and for the B4 PASS cells of H2, H3 and I.
+% 9.850898 mL for cells fitted with the custom adapter. 
 nnlsCsv = fullfile(fileparts(mfilename('fullpath')), 'NNLS_Cam_Ready_results.csv');
 results = readtable(nnlsCsv, 'TextType','string', 'Delimiter',',');
 results.isPass = logical(results.isPass);
@@ -54,7 +51,7 @@ if ~isempty(results3)
             [t_c, C_cum, E_cum] = per_time_cum_conc_sampling( ...
                 Rsub.t_min, Rsub.C_BSA_ugmL, Rsub.Vr_mL, Vref_g, Vs);
 
-            % convert to Q (µg/cm²)
+            % convert to Q (µg/cm^2)
             Q_cum   = (Vref_g .* C_cum) ./ A_cm2;
             Q_err   = (Vref_g .* E_cum) ./ A_cm2;
 
@@ -80,7 +77,7 @@ if ~isempty(results3)
 
 
     %% Steady-state, SD across replicate Franz cells 
-    % Each cell (batch B<n> in the file name) gets its own Q(t) and its own steady-state window 
+    % Each cell gets its own Q(t) and its own steady state window 
     % Jss, tau, Papp and R^2 are reported as mean ± SD across the n = 3 cells  
     r2_thresh = 0.957;
     results3.cell = double(regexprep(results3.file, '^T\d+_(v\d+_)?B(\d+).*$', '$2', 'ignorecase'));
@@ -106,12 +103,12 @@ if ~isempty(results3)
                 Q_k = (Vk .* C_k) ./ A_cm2;
                 bk = pick_ss_window_longest(t_k, Q_k, r2_thresh, 2);
                 if isnan(bk.slope), win_k(k) = "none"; continue; end
-                Jss_k(k) = bk.slope * 60;                      % µg cm⁻² h⁻¹
-                tau_k(k) = max(-bk.int / bk.slope, 0);         % lag time can't be negative -> clip at 0
+                Jss_k(k) = bk.slope * 60;   % µg cm^-2 h^-1
+                tau_k(k) = max(-bk.int / bk.slope, 0);   % lag time can't be negative -> clip at 0
                 r2_k(k)  = bk.r2;
                 win_k(k) = sprintf('%g–%g', t_k(bk.i1), t_k(bk.i2));
             end
-            Papp_k = (Jss_k / C0_ugmL) / 3600;                 % cm/s
+            Papp_k = (Jss_k / C0_ugmL) / 3600; % cm/s
 
             fprintf('[Results] %s | %s : n=%d cells (windows %s), Jss=%.4g ± %.4g (µg/cm²/h), τ=%.3g ± %.3g min, Papp=%.3g ± %.3g (cm/s), R²=%.4f ± %.4f\n', ...
                 geom_g, cond_str, nnz(~isnan(Jss_k)), strjoin(win_k, ', '), ...
@@ -156,7 +153,7 @@ if ~isempty(results3)
     
             Jss = best.slope*60; % µg cm^-2 h^-1
             Jss_se = slope_se*60;
-            tau = max(-best.int/best.slope, 0);   % lag time can't be negative -> clip at 0
+            tau = max(-best.int/best.slope, 0);  % lag time can't be negative -> clip at 0
             dtaudb=-1/best.slope; dtaudm=best.int/(best.slope^2);
             tau_se=sqrt(max((dtaudb^2)*int_se^2+(dtaudm^2)*slope_se^2+ ...
                             2*dtaudb*dtaudm*cov_si,0));
