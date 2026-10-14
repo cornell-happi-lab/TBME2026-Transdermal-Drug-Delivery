@@ -354,7 +354,7 @@ function ss_tbl = detect_steady_state_from_results(results3, Vs, A_cm2, C0_ugmL)
                 continue;
             end
 
-            % ---------- find best segment ----------
+            % find best segment 
             seg = find_best_linear_segment(t_c, Q_cum, minPts, r2_thresh);
 
             % defaults for fit-dependent stuff
@@ -371,7 +371,7 @@ function ss_tbl = detect_steady_state_from_results(results3, Vs, A_cm2, C0_ugmL)
                 Q_end_err = Q_err(i_end);
             end
 
-            % ---------- if we actually got a segment ----------
+            %if we actually got a segment
             if seg.npts > 0 && isfinite(seg.slope)
                 % slope, intercept SEs
                 R     = seg.S.R;
@@ -486,14 +486,14 @@ function seg = find_best_linear_segment(t, y, minPts, r2_thresh)
     best.i2         = NaN;
     best.slope      = NaN;
     best.intercept  = NaN;
-    best.S          = [];   % polyfit stats
+    best.S          = []; % polyfit stats
 
     for i1 = 1:n-minPts+1
         for i2 = i1+minPts-1:n
             tt = t(i1:i2);
             yy = y(i1:i2);
 
-            [p,S] = polyfit(tt, yy, 1);   % p(1)=slope, p(2)=intercept
+            [p,S] = polyfit(tt, yy, 1); % p(1)=slope, p(2)=intercept
             yhat  = polyval(p, tt);
 
             ss_res = sum((yy - yhat).^2);
@@ -522,8 +522,8 @@ function seg = find_best_linear_segment(t, y, minPts, r2_thresh)
         seg.slope     = best.slope;
         seg.intercept = best.intercept;
         seg.S         = best.S;
-        seg.i1        = best.i1;    % <-- important
-        seg.i2        = best.i2;    % <-- important
+        seg.i1        = best.i1; 
+        seg.i2        = best.i2; 
         seg.r2        = best.r2;
     else
         seg.t_start   = NaN;
